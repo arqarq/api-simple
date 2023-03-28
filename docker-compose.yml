@@ -1,0 +1,17 @@
+version: "3"
+services:
+  sip:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: i
+    container_name: cc
+    expose: [ 8080, 8000 ]
+#    networks:
+#      - vpn
+    ports: [ "58000:8080", "8000:8000" ]
+#networks:
+#  vpn:
+#    driver: bridge
+#    driver_opts:
+#      com.docker.network.driver.mtu: 1322

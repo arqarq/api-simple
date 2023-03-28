@@ -1,0 +1,162 @@
+openapi: 3.0.3
+info:
+  title: API Sample
+  version: 1.0.0
+servers: [ { url: http://localhost:80/ } ]
+paths:
+  /records:
+    get:
+      summary: List all records
+      operationId: listRecords
+      responses:
+        '200':
+          description: An array of records
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Records'
+        default:
+          $ref: '#/components/responses/Default'
+    post:
+      summary: Create a record
+      operationId: createRecord
+      requestBody:
+        required: true
+        description: Record to persist
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Record'
+      responses:
+        '201':
+          description: Record persisted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Record'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        default:
+          $ref: '#/components/responses/Default'
+  /process/{amount}:
+    get:
+      summary: Return one record and mark it as processed
+      operationId: process
+      parameters:
+        - name: amount
+          in: path
+          description: Amount threshold
+          required: true
+          schema:
+            $ref: '#/components/schemas/Amount'
+      responses:
+        '200':
+          description: Record returned and marked as processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Record'
+        default:
+          $ref: '#/components/responses/Default'
+  /report:
+    get:
+      summary: Return hierarchical report
+      operationId: report
+      parameters:
+        - name: processedOnly
+          in: query
+          description: "'true' for processed only, 'false' for all, case insensitive"
+          required: false
+          schema:
+            type: string
+            pattern: ^(?i)true|false$
+      responses:
+        '200':
+          description: Report data in JSON Array
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        default:
+          $ref: '#/components/responses/Default'
+components:
+  schemas:
+    Record:
+      type: object
+      required:
+        - first_name
+        - phone_number
+        - amount
+      properties:
+        id:
+          type: string
+          pattern: '^(?i)[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$'
+        first_name:
+          type: string
+          pattern: ^\p{Lu}\p{Ll}*$
+          maxLength: 255
+        phone_number:
+          type: string
+          pattern: ^[1-9]\d{8}$
+        amount:
+          $ref: '#/components/schemas/Amount'
+    Records:
+      type: array
+      items:
+        $ref: '#/components/schemas/Record'
+    Error:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - path
+      properties:
+        timestamp:
+          type: string
+        status:
+          type: integer
+          format: int32
+        error:
+          type: string
+        path:
+          type: string
+    ValidationMessages:
+      type: object
+      required:
+        - validation messages
+      properties:
+        validation messages:
+          type: array
+          items:
+            type: string
+    Amount:
+      type: string
+      pattern: ^(([1-9]+\d{0,7})|0)(,\d{1,2})?$
+    Report:
+      type: array
+      items:
+        $ref: '#/components/schemas/ReportRow'
+    ReportRow:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/ReportRowData'
+    ReportRowData:
+      type: array
+      items:
+        type: array
+        items:
+          type: string
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationMessages'
+    Default:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
