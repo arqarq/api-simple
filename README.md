@@ -11,3 +11,5 @@ i
 widok API wystawiony jest w [http://localhost/api](http://localhost/api)
 
 konfiguracja priorytetów w pliku __CONFIG_FILE.TXT__ w formacie: ```od_kwoty-do_kwoty:priorytet;...```, kwoty z przecinkami
+
+bazę H2 można podglądać w kompatybilnym IDE przez: ```jdbc:h2:file:./db;AUTO_SERVER=TRUE```
